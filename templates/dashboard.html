@@ -1,0 +1,53 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title>SafeCam Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body class="bg">
+    <div class="topbar">
+        <a href="{{ url_for('index') }}">Live</a> |
+        <a href="{{ url_for('logout') }}">Logout</a>
+    </div>
+
+    <div class="center">
+        <h1>Sci-Fi Dashboard</h1>
+        <div class="stats">
+            <div>Person Status: <span id="pstatus">unknown</span></div>
+            <div>Last capture: <span id="lastcap">{{ status.get('last_capture') }}</span></div>
+        </div>
+
+        <h2>Captures</h2>
+        <div class="gallery">
+            {% for f in captures %}
+            <div class="card">
+                <img src="{{ url_for('static', filename='captures/' + f) }}" />
+                <div class="fname">{{ f }}</div>
+            </div>
+            {% else %}
+            <div>No captures yet.</div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <script>
+        // refresh status every sec
+        async function fetchStatus() {
+            try {
+                const r = await fetch('/status', {
+                    cache: 'no-store'
+                });
+                const j = await r.json();
+                document.getElementById('pstatus').textContent = j.person ? 'PERSON' : 'CLEAR';
+                if (j.last_capture) document.getElementById('lastcap').textContent = j.last_capture;
+            } catch (e) {}
+            setTimeout(fetchStatus, 1000);
+        }
+        fetchStatus();
+    </script>
+</body>
+
+</html>
